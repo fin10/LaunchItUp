@@ -1,4 +1,4 @@
-package com.jeon.android.launchitup.model;
+package com.jeon.android.launchitup.data;
 
 import android.content.Intent;
 import android.graphics.drawable.Drawable;

@@ -16,13 +16,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.jeon.android.launchitup.model.AppData;
-import com.jeon.android.launchitup.model.AppModel;
-import com.jeon.android.launchitup.model.OnAppModelListener;
+import com.jeon.android.launchitup.data.AppData;
+import com.jeon.android.launchitup.data.AppListFetcher;
 
 import java.util.List;
 
-public class AppChooseDialogActivity extends Activity implements DialogInterface.OnDismissListener, AdapterView.OnItemClickListener, OnAppModelListener {
+public class AppChooseDialogActivity extends Activity implements DialogInterface.OnDismissListener, AdapterView.OnItemClickListener, AppListFetcher.Callback {
 
     private AlertDialog mDialog;
     private AppListAdapter mAppListAdapter;
@@ -37,8 +36,7 @@ public class AppChooseDialogActivity extends Activity implements DialogInterface
 
         mGuideToast = Toast.makeText(this, R.string.long_press_the_home_key, Toast.LENGTH_LONG);
 
-        AppModel model = new AppModel(this);
-        model.requestAppList(getPackageManager());
+        AppListFetcher.fetch(getPackageManager(), this);
 
         View dialogView = getLayoutInflater().inflate(R.layout.app_list_layout, null);
         mGridView = (GridView) dialogView.findViewById(R.id.grid_view);
