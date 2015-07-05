@@ -1,9 +1,11 @@
 package com.jeon.android.launchitup.data;
 
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.graphics.drawable.Drawable;
+import android.content.res.Resources;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
@@ -13,11 +15,12 @@ import com.jeon.android.launchitup.Survey;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class AppListFetcher {
 
-    public static void fetch(@NonNull final PackageManager packageManager, @NonNull final Callback callback) {
+    public static void fetch(@NonNull PackageManager packageManager, @NonNull final Callback callback) {
 
         new AsyncTask<PackageManager, Void, List<AppData>>() {
 
@@ -40,28 +43,45 @@ public class AppListFetcher {
                     String pkgName = info.activityInfo.applicationInfo.packageName;
                     if (Log.getPackageName().equalsIgnoreCase(pkgName)) continue;
 
-                    intent = pkgManager.getLaunchIntentForPackage(pkgName);
-
-                    CharSequence name = info.loadLabel(pkgManager);
-                    if (TextUtils.isEmpty(name)) continue;
-
-                    Drawable drawable = info.activityInfo.loadIcon(pkgManager);
-
                     try {
-                        AppData data = new AppData.Builder()
-                                .setPackageName(pkgName)
-                                .setAppName((String) name)
-                                .setIconDrawable(drawable)
-                                .setLaunchIntent(intent)
+                        CharSequence name = info.loadLabel(pkgManager);
+                        if (TextUtils.isEmpty(name)) continue;
+
+                        Resources res = pkgManager.getResourcesForApplication(pkgName);
+                        int iconResId = info.getIconResource();
+                        Uri iconUri = new Uri.Builder()
+                                .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
+                                .authority(pkgName)
+                                .appendPath(res.getResourceTypeName(iconResId))
+                                .appendPath(res.getResourceEntryName(iconResId))
                                 .build();
 
-                        appDataList.add(data);
+                        String uriString = pkgManager.getLaunchIntentForPackage(pkgName).toUri(0);
+
+                        AppData data = new AppData.Builder()
+                                .setId(uriString)
+                                .setTitle((String) name)
+                                .setIconUri(iconUri)
+                                .setLaunchUri(uriString)
+                                .build();
+
+                        if (!appDataList.contains(data)) {
+                            appDataList.add(data);
+                        }
                     } catch (IllegalArgumentException e) {
+                        e.printStackTrace();
+                    } catch (PackageManager.NameNotFoundException e) {
                         e.printStackTrace();
                     }
                 }
 
-                Collections.sort(appDataList);
+                Collections.sort(appDataList, new Comparator<AppData>() {
+
+                    @Override
+                    public int compare(AppData lhs, AppData rhs) {
+                        return lhs.getTitle().compareTo(rhs.getTitle());
+                    }
+                });
 
                 long diff = (System.currentTimeMillis() - startTime) / 1000;
                 Log.d("diff:%d", diff);
@@ -71,8 +91,8 @@ public class AppListFetcher {
             }
 
             @Override
-            protected void onPostExecute(List<AppData> appDatas) {
-                callback.onResult(appDatas);
+            protected void onPostExecute(List<AppData> appDataList) {
+                callback.onResult(appDataList);
             }
 
         }.execute(packageManager);

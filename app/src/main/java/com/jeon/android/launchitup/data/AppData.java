@@ -1,35 +1,78 @@
 package com.jeon.android.launchitup.data;
 
-import android.content.Intent;
-import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
-public class AppData implements Comparable<AppData> {
+import org.json.JSONException;
+import org.json.JSONObject;
 
-    private String packageName;
-    private String name;
-    private Drawable drawable;
-    private String intent;
+public class AppData {
+
+    private String mId;
+    private String mTitle;
+    private String mSubTitle = "";
+    private Uri mIconUri;
+    private String mLaunchUriString;
 
     private AppData() {
     }
 
-    public String getName() {
-        return name;
+    public AppData(String json) throws JSONException {
+        JSONObject jsonObject = new JSONObject(json);
+        mId = jsonObject.getString("id");
+        mTitle = jsonObject.getString("title");
+        if (jsonObject.has("sub_title")) mSubTitle = jsonObject.getString("sub_title");
+        mIconUri = Uri.parse(jsonObject.getString("icon_uri"));
+        mLaunchUriString = jsonObject.getString("launch_uri_string");
     }
 
-    public Drawable getDrawable() {
-        return drawable;
+    public String getTitle() {
+        return mTitle;
     }
 
-    public String getIntent() {
-        return intent;
+    public String getSubTitle() {
+        return mSubTitle;
+    }
+
+    public Uri getIconUri() {
+        return mIconUri;
+    }
+
+    public String getLaunchUriString() {
+        return mLaunchUriString;
     }
 
     @Override
-    public int compareTo(@NonNull AppData another) {
-        return name.compareToIgnoreCase(another.name);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AppData appData = (AppData) o;
+
+        return !(mId != null ? !mId.equals(appData.mId) : appData.mId != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return mId != null ? mId.hashCode() : 0;
+    }
+
+    public String toJson() {
+        try {
+            JSONObject json = new JSONObject();
+            json.put("id", mId);
+            json.put("title", mTitle);
+            json.put("sub_title", mSubTitle);
+            json.put("icon_uri", mIconUri);
+            json.put("launch_uri_string", mLaunchUriString);
+            return json.toString();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return "";
     }
 
     public static class Builder {
@@ -40,38 +83,39 @@ public class AppData implements Comparable<AppData> {
             data = new AppData();
         }
 
-        public Builder setPackageName(String pkgName) {
-            data.packageName = pkgName;
+        public Builder setId(@NonNull String id) {
+            data.mId = id;
             return this;
         }
 
-        public Builder setAppName(String name) {
-            data.name = name;
+        public Builder setTitle(@NonNull String title) {
+            data.mTitle = title;
             return this;
         }
 
-        public Builder setIconDrawable(Drawable drawable) {
-            data.drawable = drawable;
+        public Builder setSubTitle(@NonNull String subTitle) {
+            data.mSubTitle = subTitle;
             return this;
         }
 
-        public Builder setLaunchIntent(Intent intent) {
-            try {
-                data.intent = intent.toUri(0);
-            } catch (IllegalArgumentException e) {
-                e.printStackTrace();
-            }
+        public Builder setIconUri(@NonNull Uri uri) {
+            data.mIconUri = uri;
+            return this;
+        }
 
+        public Builder setLaunchUri(@NonNull String uriString) {
+            data.mLaunchUriString = uriString;
             return this;
         }
 
         public AppData build() {
-            if (TextUtils.isEmpty(data.packageName))
-                throw new IllegalArgumentException("packageName is empty.");
-            if (TextUtils.isEmpty(data.name)) throw new IllegalArgumentException("name is empty.");
-            if (data.drawable == null) throw new IllegalArgumentException("drawable is null.");
-            if (TextUtils.isEmpty(data.intent))
-                throw new IllegalArgumentException("intent is null.");
+            if (TextUtils.isEmpty(data.mId))
+                throw new IllegalArgumentException("id is empty.");
+            if (TextUtils.isEmpty(data.mTitle))
+                throw new IllegalArgumentException("title is empty.");
+            if (data.mIconUri == null) throw new IllegalArgumentException("icon uri is null.");
+            if (TextUtils.isEmpty(data.mLaunchUriString))
+                throw new IllegalArgumentException("launch uri is null.");
 
             return data;
         }

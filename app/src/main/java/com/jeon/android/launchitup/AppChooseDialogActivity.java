@@ -2,10 +2,12 @@ package com.jeon.android.launchitup;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,27 +16,30 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.jeon.android.launchitup.data.AppData;
 import com.jeon.android.launchitup.data.AppListFetcher;
 
-import java.util.List;
+import org.json.JSONException;
 
-public class AppChooseDialogActivity extends Activity implements DialogInterface.OnDismissListener, AdapterView.OnItemClickListener, AppListFetcher.Callback {
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+public class AppChooseDialogActivity extends Activity implements DialogInterface.OnDismissListener, DialogInterface.OnClickListener, AdapterView.OnItemClickListener, AppListFetcher.Callback {
 
     private AlertDialog mDialog;
     private AppListAdapter mAppListAdapter;
     private GridView mGridView;
     private View mProgressBar;
-    private Toast mGuideToast;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d("enter");
         super.onCreate(savedInstanceState);
-
-        mGuideToast = Toast.makeText(this, R.string.long_press_the_home_key, Toast.LENGTH_LONG);
 
         AppListFetcher.fetch(getPackageManager(), this);
 
@@ -45,7 +50,7 @@ public class AppChooseDialogActivity extends Activity implements DialogInterface
         mDialog = new AlertDialog.Builder(this)
                 .setView(dialogView)
                 .setOnDismissListener(this)
-                .setPositiveButton(android.R.string.ok, null)
+                .setPositiveButton(android.R.string.ok, this)
                 .create();
 
         mDialog.show();
@@ -67,8 +72,19 @@ public class AppChooseDialogActivity extends Activity implements DialogInterface
         mAppListAdapter = new AppListAdapter(inflater, appDataList);
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        String uriString = prefs.getString(LauncherActivity.PREF_KEY_LAUNCH_INTENT, null);
-        mAppListAdapter.selectItem(uriString);
+        Set<String> dataList = prefs.getStringSet(LauncherActivity.PREF_KEY_LAUNCH_DATA_LIST, Collections.<String>emptySet());
+        for (String data : dataList) {
+            try {
+                AppData appData = new AppData(data);
+                for (int i = 0; i < appDataList.size(); ++i) {
+                    if (appData.equals(appDataList.get(i))) {
+                        mAppListAdapter.selectItem(i);
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
 
         mGridView.setAdapter(mAppListAdapter);
         mGridView.setOnItemClickListener(this);
@@ -80,6 +96,24 @@ public class AppChooseDialogActivity extends Activity implements DialogInterface
     }
 
     @Override
+    public void onClick(DialogInterface dialog, int which) {
+        Log.d("which:%d", which);
+        switch (which) {
+            case DialogInterface.BUTTON_POSITIVE:
+                Set<Integer> selectedItems = mAppListAdapter.getSelectedItems();
+                Set<String> datas = new HashSet<String>();
+                for (int index : selectedItems) {
+                    AppData data = (AppData) mAppListAdapter.getItem(index);
+                    datas.add(data.toJson());
+                }
+
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+                prefs.edit().putStringSet(LauncherActivity.PREF_KEY_LAUNCH_DATA_LIST, datas).apply();
+                break;
+        }
+    }
+
+    @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         AppData data = (AppData) mAppListAdapter.getItem(position);
         if (data == null) {
@@ -87,30 +121,42 @@ public class AppChooseDialogActivity extends Activity implements DialogInterface
             return;
         }
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        prefs.edit().putString(LauncherActivity.PREF_KEY_LAUNCH_INTENT, data.getIntent()).apply();
+        if (mAppListAdapter.isSelected(position)) {
+            mAppListAdapter.unselectItem(position);
+        } else {
+            mAppListAdapter.selectItem(position);
+        }
 
-        mAppListAdapter.selectItem(data.getIntent());
         mAppListAdapter.notifyDataSetChanged();
-
-        mGuideToast.show();
         Survey.send(Survey.Action.CLICK, "select application");
+        setResult(RESULT_OK);
     }
 
     private static class AppListAdapter extends BaseAdapter {
 
+        private final Context mContext;
         private final LayoutInflater mInflater;
+        private final List<AppData> mAppList;
 
-        private String mSelectedItem;
-        private List<AppData> mAppList;
+        private final Set<Integer> mSelectedItems;
 
-        public AppListAdapter(LayoutInflater inflater, List<AppData> list) {
+        public AppListAdapter(@NonNull LayoutInflater inflater, List<AppData> list) {
+            mContext = inflater.getContext();
             mInflater = inflater;
             mAppList = list;
+            mSelectedItems = new HashSet<Integer>();
         }
 
-        public void selectItem(String uriString) {
-            mSelectedItem = uriString;
+        public void selectItem(int position) {
+            if (mSelectedItems.contains(position)) {
+                Log.e("[%s] already selected.", position);
+            } else {
+                mSelectedItems.add(position);
+            }
+        }
+
+        public void unselectItem(int position) {
+            mSelectedItems.remove(position);
         }
 
         @Override
@@ -139,15 +185,27 @@ public class AppChooseDialogActivity extends Activity implements DialogInterface
 
             AppData appData = mAppList.get(position);
             TextView nameView = (TextView) convertView.getTag(R.id.app_name_text_view);
-            nameView.setText(appData.getName());
+            nameView.setText(appData.getTitle());
 
             ImageView iconView = (ImageView) convertView.getTag(R.id.app_icon_image_view);
-            iconView.setImageDrawable(appData.getDrawable());
+            Glide.with(mContext)
+                    .load(appData.getIconUri())
+                    .error(android.R.drawable.ic_menu_help)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .into(iconView);
 
             View checkView = (View) convertView.getTag(R.id.check_image_view);
-            checkView.setVisibility(appData.getIntent().equalsIgnoreCase(mSelectedItem) ? View.VISIBLE : View.INVISIBLE);
+            checkView.setVisibility(mSelectedItems.contains(position) ? View.VISIBLE : View.INVISIBLE);
 
             return convertView;
+        }
+
+        public boolean isSelected(int position) {
+            return mSelectedItems.contains(position);
+        }
+
+        public Set<Integer> getSelectedItems() {
+            return mSelectedItems;
         }
     }
 }
