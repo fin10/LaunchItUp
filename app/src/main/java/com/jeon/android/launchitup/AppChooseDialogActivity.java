@@ -54,7 +54,6 @@ public class AppChooseDialogActivity extends Activity implements DialogInterface
                 .create();
 
         mDialog.show();
-        Survey.send(Survey.Action.ENTER, "AppChooseDialog");
     }
 
     @Override
@@ -128,7 +127,6 @@ public class AppChooseDialogActivity extends Activity implements DialogInterface
         }
 
         mAppListAdapter.notifyDataSetChanged();
-        Survey.send(Survey.Action.CLICK, "select application");
         setResult(RESULT_OK);
     }
 

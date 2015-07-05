@@ -48,7 +48,6 @@ public class LauncherActivity extends Activity implements View.OnClickListener {
                 try {
                     AppData appData = new AppData(data);
                     startActivity(Intent.parseUri(appData.getLaunchUriString(), 0));
-                    Survey.send(Survey.Action.LAUNCH, "application");
                     break;
                 } catch (URISyntaxException e) {
                     e.printStackTrace();
@@ -93,7 +92,6 @@ public class LauncherActivity extends Activity implements View.OnClickListener {
         } else {
             try {
                 startActivity(Intent.parseUri(appData.getLaunchUriString(), 0));
-                Survey.send(Survey.Action.LAUNCH, "application");
             } catch (URISyntaxException e) {
                 e.printStackTrace();
             }

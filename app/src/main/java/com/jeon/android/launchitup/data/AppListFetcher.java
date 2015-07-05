@@ -11,7 +11,6 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.jeon.android.launchitup.Log;
-import com.jeon.android.launchitup.Survey;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,7 +26,6 @@ public class AppListFetcher {
             @Override
             protected List<AppData> doInBackground(PackageManager... params) {
                 PackageManager pkgManager = params[0];
-                long startTime = System.currentTimeMillis();
 
                 Intent intent = new Intent(Intent.ACTION_MAIN);
                 intent.addCategory(Intent.CATEGORY_LAUNCHER);
@@ -82,10 +80,6 @@ public class AppListFetcher {
                         return lhs.getTitle().compareTo(rhs.getTitle());
                     }
                 });
-
-                long diff = (System.currentTimeMillis() - startTime) / 1000;
-                Log.d("diff:%d", diff);
-                if (diff > 0) Survey.send("load applications", diff);
 
                 return appDataList;
             }
