@@ -1,5 +1,6 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.jeon.android.launchitup">
+<manifest
+    package="com.jeon.android.launchitup"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
         android:name=".LaunchItUpApplication"
@@ -11,6 +12,7 @@
         <activity
             android:name=".LauncherActivity"
             android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
             android:theme="@style/TransparentAppTheme">
 
             <meta-data
@@ -25,6 +27,7 @@
 
         <activity
             android:name=".AppChooseDialogActivity"
+            android:launchMode="singleInstance"
             android:theme="@style/AppDialogTheme">
 
             <intent-filter>

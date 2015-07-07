@@ -29,7 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class AppChooseDialogActivity extends Activity implements DialogInterface.OnDismissListener, DialogInterface.OnClickListener, AdapterView.OnItemClickListener, AppListFetcher.Callback {
+public class AppChooseDialogActivity extends Activity implements DialogInterface.OnDismissListener, AdapterView.OnItemClickListener, AppListFetcher.Callback {
 
     private AlertDialog mDialog;
     private AppListAdapter mAppListAdapter;
@@ -50,7 +50,7 @@ public class AppChooseDialogActivity extends Activity implements DialogInterface
         mDialog = new AlertDialog.Builder(this)
                 .setView(dialogView)
                 .setOnDismissListener(this)
-                .setPositiveButton(android.R.string.ok, this)
+                .setPositiveButton(android.R.string.ok, null)
                 .create();
 
         mDialog.show();
@@ -61,6 +61,18 @@ public class AppChooseDialogActivity extends Activity implements DialogInterface
         Log.d("enter");
         super.onDestroy();
         if (mDialog != null) mDialog.dismiss();
+
+        if (mAppListAdapter != null) {
+            Set<Integer> selectedItems = mAppListAdapter.getSelectedItems();
+            Set<String> datas = new HashSet<String>();
+            for (int index : selectedItems) {
+                AppData data = (AppData) mAppListAdapter.getItem(index);
+                datas.add(data.toJson());
+            }
+
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            prefs.edit().putStringSet(LauncherActivity.PREF_KEY_LAUNCH_DATA_LIST, datas).apply();
+        }
     }
 
     @Override
@@ -95,24 +107,6 @@ public class AppChooseDialogActivity extends Activity implements DialogInterface
     }
 
     @Override
-    public void onClick(DialogInterface dialog, int which) {
-        Log.d("which:%d", which);
-        switch (which) {
-            case DialogInterface.BUTTON_POSITIVE:
-                Set<Integer> selectedItems = mAppListAdapter.getSelectedItems();
-                Set<String> datas = new HashSet<String>();
-                for (int index : selectedItems) {
-                    AppData data = (AppData) mAppListAdapter.getItem(index);
-                    datas.add(data.toJson());
-                }
-
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-                prefs.edit().putStringSet(LauncherActivity.PREF_KEY_LAUNCH_DATA_LIST, datas).apply();
-                break;
-        }
-    }
-
-    @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         AppData data = (AppData) mAppListAdapter.getItem(position);
         if (data == null) {
@@ -127,7 +121,6 @@ public class AppChooseDialogActivity extends Activity implements DialogInterface
         }
 
         mAppListAdapter.notifyDataSetChanged();
-        setResult(RESULT_OK);
     }
 
     private static class AppListAdapter extends BaseAdapter {
