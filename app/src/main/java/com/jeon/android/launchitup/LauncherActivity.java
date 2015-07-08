@@ -101,26 +101,17 @@ public class LauncherActivity extends Activity implements View.OnClickListener, 
             return;
         }
 
-        final FloatingActionMenu menu = (FloatingActionMenu) LayoutInflater.from(this).inflate(R.layout.floating_actions_menu, parent, false);
-        menu.setOnMenuToggleListener(this);
-        parent.addView(menu);
-
-        menu.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                menu.open(true);
-            }
-        }, 500);
-
         int size = getResources().getDimensionPixelSize(R.dimen.icon_size);
-
+        LayoutInflater inflater = getLayoutInflater();
         for (String data : items) {
             try {
-                final FloatingActionButton button = new FloatingActionButton(this);
-                button.setButtonSize(FloatingActionButton.SIZE_MINI);
+                View view = inflater.inflate(R.layout.launch_item_layout, parent, false);
+                final FloatingActionButton button = (FloatingActionButton) view.findViewById(R.id.floating_action_button);
+                parent.addView(view);
 
                 AppData appData = new AppData(data);
-                button.setLabelText(appData.getTitle());
+                button.setTag(appData);
+                button.setOnClickListener(this);
 
                 Glide.with(this)
                         .load(appData.getIconUri())
@@ -133,10 +124,6 @@ public class LauncherActivity extends Activity implements View.OnClickListener, 
                                 button.setImageDrawable(resource);
                             }
                         });
-
-                button.setTag(appData);
-                button.setOnClickListener(this);
-                menu.addMenuButton(button);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
