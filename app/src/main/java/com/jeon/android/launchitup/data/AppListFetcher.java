@@ -39,8 +39,6 @@ public class AppListFetcher {
                 List<AppData> appDataList = new ArrayList<AppData>(infoList.size());
                 for (ResolveInfo info : infoList) {
                     String pkgName = info.activityInfo.applicationInfo.packageName;
-                    if (Log.getPackageName().equalsIgnoreCase(pkgName)) continue;
-
                     try {
                         CharSequence name = info.loadLabel(pkgManager);
                         if (TextUtils.isEmpty(name)) continue;

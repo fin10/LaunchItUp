@@ -5,11 +5,9 @@ public class Log {
     private static Log sInstance;
 
     private final String mTag;
-    private final String mPackageName;
 
     private Log(String tag) {
         mTag = tag;
-        mPackageName = getClass().getPackage().getName();
     }
 
     public static void init(String tag) {
@@ -19,11 +17,7 @@ public class Log {
             }
         }
 
-        Log.d("tag:%s, pkgName:%s", sInstance.mTag, sInstance.mPackageName);
-    }
-
-    public static String getPackageName() {
-        return sInstance.mPackageName;
+        Log.d("tag:%s", sInstance.mTag);
     }
 
     public static void d(String format, Object... args) {

@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">Launch It Up</string>
-    <string name="long_press_the_home_key">Long-press the home key</string>
+    <string name="it_supports_up_to_five_applications">It supports tp to 5 applications.</string>
 </resources>
