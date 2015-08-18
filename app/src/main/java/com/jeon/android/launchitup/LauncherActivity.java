@@ -17,7 +17,7 @@ import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
-import com.jeon.android.launchitup.data.AppData;
+import com.jeon.android.launchitup.data.LaunchItem;
 
 import org.json.JSONException;
 
@@ -37,7 +37,7 @@ public class LauncherActivity extends Activity implements View.OnClickListener, 
         Set<String> dataList = prefs.getStringSet(PREF_KEY_LAUNCH_DATA_LIST, Collections.<String>emptySet());
         Log.d("count:%d", dataList.size());
         if (dataList.isEmpty()) {
-            startActivity(new Intent(this, AppChooseDialogActivity.class));
+            startActivity(new Intent(this, LaunchItemDialogActivity.class));
             finish();
             return;
         }
@@ -45,8 +45,8 @@ public class LauncherActivity extends Activity implements View.OnClickListener, 
         if (dataList.size() == 1) {
             for (String data : dataList) {
                 try {
-                    AppData appData = new AppData(data);
-                    startActivity(Intent.parseUri(appData.getLaunchUriString(), 0));
+                    LaunchItem launchItem = new LaunchItem(data);
+                    startActivity(Intent.parseUri(launchItem.getLaunchUriString(), 0));
                     break;
                 } catch (URISyntaxException e) {
                     e.printStackTrace();
@@ -73,10 +73,10 @@ public class LauncherActivity extends Activity implements View.OnClickListener, 
                 finish();
                 break;
             default:
-                AppData appData = (AppData) v.getTag();
-                if (appData != null) {
+                LaunchItem launchItem = (LaunchItem) v.getTag();
+                if (launchItem != null) {
                     try {
-                        startActivity(Intent.parseUri(appData.getLaunchUriString(), 0));
+                        startActivity(Intent.parseUri(launchItem.getLaunchUriString(), 0));
                     } catch (URISyntaxException e) {
                         e.printStackTrace();
                     }
@@ -109,12 +109,12 @@ public class LauncherActivity extends Activity implements View.OnClickListener, 
                 final FloatingActionButton button = (FloatingActionButton) view.findViewById(R.id.floating_action_button);
                 parent.addView(view);
 
-                AppData appData = new AppData(data);
-                button.setTag(appData);
+                LaunchItem launchItem = new LaunchItem(data);
+                button.setTag(launchItem);
                 button.setOnClickListener(this);
 
                 Glide.with(this)
-                        .load(appData.getIconUri())
+                        .load(launchItem.getIconUri())
                         .error(android.R.drawable.ic_menu_help)
                         .diskCacheStrategy(DiskCacheStrategy.NONE)
                         .into(new SimpleTarget<GlideDrawable>(size, size) {

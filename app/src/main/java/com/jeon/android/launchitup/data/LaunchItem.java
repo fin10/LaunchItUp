@@ -7,7 +7,7 @@ import android.text.TextUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class AppData {
+public class LaunchItem {
 
     private String mId;
     private String mTitle;
@@ -15,10 +15,10 @@ public class AppData {
     private Uri mIconUri;
     private String mLaunchUriString;
 
-    private AppData() {
+    private LaunchItem() {
     }
 
-    public AppData(String json) throws JSONException {
+    public LaunchItem(String json) throws JSONException {
         JSONObject jsonObject = new JSONObject(json);
         mId = jsonObject.getString("id");
         mTitle = jsonObject.getString("title");
@@ -48,9 +48,9 @@ public class AppData {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        AppData appData = (AppData) o;
+        LaunchItem launchItem = (LaunchItem) o;
 
-        return !(mId != null ? !mId.equals(appData.mId) : appData.mId != null);
+        return !(mId != null ? !mId.equals(launchItem.mId) : launchItem.mId != null);
 
     }
 
@@ -77,10 +77,10 @@ public class AppData {
 
     public static class Builder {
 
-        private final AppData data;
+        private final LaunchItem data;
 
         public Builder() {
-            data = new AppData();
+            data = new LaunchItem();
         }
 
         public Builder setId(@NonNull String id) {
@@ -108,7 +108,7 @@ public class AppData {
             return this;
         }
 
-        public AppData build() {
+        public LaunchItem build() {
             if (TextUtils.isEmpty(data.mId))
                 throw new IllegalArgumentException("id is empty.");
             if (TextUtils.isEmpty(data.mTitle))

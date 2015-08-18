@@ -1,4 +1,4 @@
-package com.jeon.android.launchitup.data;
+package com.jeon.android.launchitup.app;
 
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -11,6 +11,7 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.jeon.android.launchitup.Log;
+import com.jeon.android.launchitup.data.LaunchItem;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,10 +22,10 @@ public class AppListFetcher {
 
     public static void fetch(@NonNull PackageManager packageManager, @NonNull final Callback callback) {
 
-        new AsyncTask<PackageManager, Void, List<AppData>>() {
+        new AsyncTask<PackageManager, Void, List<LaunchItem>>() {
 
             @Override
-            protected List<AppData> doInBackground(PackageManager... params) {
+            protected List<LaunchItem> doInBackground(PackageManager... params) {
                 PackageManager pkgManager = params[0];
 
                 Intent intent = new Intent(Intent.ACTION_MAIN);
@@ -33,10 +34,10 @@ public class AppListFetcher {
                 List<ResolveInfo> infoList = pkgManager.queryIntentActivities(intent, 0);
                 if (infoList == null || infoList.isEmpty()) {
                     Log.e("There is no applications which is able to launch.");
-                    return null;
+                    return Collections.emptyList();
                 }
 
-                List<AppData> appDataList = new ArrayList<AppData>(infoList.size());
+                List<LaunchItem> launchItemList = new ArrayList<>(infoList.size());
                 for (ResolveInfo info : infoList) {
                     String pkgName = info.activityInfo.applicationInfo.packageName;
                     try {
@@ -54,15 +55,15 @@ public class AppListFetcher {
 
                         String uriString = pkgManager.getLaunchIntentForPackage(pkgName).toUri(0);
 
-                        AppData data = new AppData.Builder()
+                        LaunchItem data = new LaunchItem.Builder()
                                 .setId(uriString)
                                 .setTitle((String) name)
                                 .setIconUri(iconUri)
                                 .setLaunchUri(uriString)
                                 .build();
 
-                        if (!appDataList.contains(data)) {
-                            appDataList.add(data);
+                        if (!launchItemList.contains(data)) {
+                            launchItemList.add(data);
                         }
                     } catch (IllegalArgumentException e) {
                         e.printStackTrace();
@@ -71,26 +72,26 @@ public class AppListFetcher {
                     }
                 }
 
-                Collections.sort(appDataList, new Comparator<AppData>() {
+                Collections.sort(launchItemList, new Comparator<LaunchItem>() {
 
                     @Override
-                    public int compare(AppData lhs, AppData rhs) {
+                    public int compare(LaunchItem lhs, LaunchItem rhs) {
                         return lhs.getTitle().compareTo(rhs.getTitle());
                     }
                 });
 
-                return appDataList;
+                return launchItemList;
             }
 
             @Override
-            protected void onPostExecute(List<AppData> appDataList) {
-                callback.onResult(appDataList);
+            protected void onPostExecute(List<LaunchItem> launchItemList) {
+                callback.onResult(launchItemList);
             }
 
         }.execute(packageManager);
     }
 
     public interface Callback {
-        void onResult(List<AppData> appDataList);
+        void onResult(@NonNull List<LaunchItem> launchItemList);
     }
 }
