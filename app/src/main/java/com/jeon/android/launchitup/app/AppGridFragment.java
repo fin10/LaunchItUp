@@ -76,11 +76,6 @@ public class AppGridFragment extends Fragment implements AppListFetcher.Callback
         for (LaunchItem item : items) {
             if (checkedItems.contains(item)) {
                 mAppListAdapter.checkItem(item);
-
-//                        View view = createAppIcon(this, inflater, launchItem, mCheckedAppListLayout);
-//                        view.setTag(i);
-//                        view.setOnClickListener(this);
-//                        mCheckedAppListLayout.addView(view);
             }
         }
 
@@ -98,54 +93,18 @@ public class AppGridFragment extends Fragment implements AppListFetcher.Callback
         }
 
         if (mAppListAdapter.isChecked(data)) {
-            boolean result = LaunchItemModel.getInstance().removeItem(getActivity(), data.getId());
-            if (result) {
-                mAppListAdapter.uncheckItem(data);
-            }
-
-//            int count = mCheckedAppListLayout.getChildCount();
-//            for (int i = 0; i < count; ++i) {
-//                View child = mCheckedAppListLayout.getChildAt(i);
-//                if ((int) child.getTag() == position) {
-//                    Log.d("[%d] found.", i);
-//                    mCheckedAppListLayout.removeViewAt(i);
-//
-//                    if (mCheckedAppListLayout.getChildCount() == 0) {
-//                        mCheckedAppListLayout.setVisibility(View.GONE);
-//                    }
-//                    break;
-//                }
-//            }
+            LaunchItemModel.getInstance().removeItem(getActivity(), data.getId());
         } else {
             boolean result = LaunchItemModel.getInstance().putItem(getActivity(), data);
-            if (result) {
-                mAppListAdapter.checkItem(data);
-            } else {
+            if (!result) {
                 mUpToFiveToast.show();
             }
-//            if (result) {
-//                if (mCheckedAppListLayout.getChildCount() == 0) {
-//                    mCheckedAppListLayout.setVisibility(View.VISIBLE);
-//                }
-//
-//                View appIconView = createAppIcon(this, getLayoutInflater(), data, mCheckedAppListLayout);
-//                appIconView.setTag(position);
-//                appIconView.setOnClickListener(this);
-//                mCheckedAppListLayout.addView(appIconView);
-//            } else {
-//                if (mUpToFiveToast == null) {
-//                    mUpToFiveToast = Toast.makeText(this, R.string.it_supports_up_to_five_applications, Toast.LENGTH_SHORT);
-//                }
-//
-//                mUpToFiveToast.show();
-//            }
         }
-
-        mAppListAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onAdded(@NonNull LaunchItem newItem) {
+        Log.d("[onAdded] %s", newItem.getId());
         if (mAppListAdapter != null && !mAppListAdapter.isChecked(newItem)) {
             int count = mAppListAdapter.getCount();
             for (int i = 0; i < count; ++i) {
@@ -160,6 +119,7 @@ public class AppGridFragment extends Fragment implements AppListFetcher.Callback
 
     @Override
     public void onRemoved(@NonNull String id) {
+        Log.d("[onRemoved] %s", id);
         if (mAppListAdapter != null) {
             LaunchItem item = mAppListAdapter.getCheckedItemById(id);
             if (item != null) {
@@ -187,11 +147,15 @@ public class AppGridFragment extends Fragment implements AppListFetcher.Callback
                 Log.e("[%s] already selected.", item.getId());
             } else {
                 mCheckedItems.add(item);
+                notifyDataSetChanged();
             }
         }
 
         public void uncheckItem(@NonNull LaunchItem item) {
-            mCheckedItems.remove(item);
+            boolean result = mCheckedItems.remove(item);
+            if (result) {
+                notifyDataSetChanged();
+            }
         }
 
         public boolean isChecked(@NonNull LaunchItem item) {

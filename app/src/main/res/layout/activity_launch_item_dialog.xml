@@ -48,20 +48,18 @@
                 android:id="@+id/view_pager"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_above="@+id/checked_app_list_layout"
+                android:layout_above="@+id/launch_item_list_fragment"
                 android:layout_below="@+id/tab_layout"
                 />
 
-            <LinearLayout
-                android:id="@+id/checked_app_list_layout"
+            <fragment
+                android:id="@+id/launch_item_list_fragment"
+                android:name="com.jeon.android.launchitup.LaunchItemListFragment"
                 android:layout_width="match_parent"
-                android:layout_height="62dp"
+                android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
-                android:animateLayoutChanges="true"
-                android:background="#42000000"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:visibility="gone"/>
+                android:tag="launch_item_list_fragment"
+                tools:layout="@layout/fragment_launch_item_list"/>
 
         </RelativeLayout>
 
