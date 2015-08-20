@@ -69,6 +69,8 @@ public class AppListFetcher {
                         e.printStackTrace();
                     } catch (PackageManager.NameNotFoundException e) {
                         e.printStackTrace();
+                    } catch (Resources.NotFoundException e) {
+                        e.printStackTrace();
                     }
                 }
 

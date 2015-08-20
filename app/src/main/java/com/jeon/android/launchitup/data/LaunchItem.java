@@ -27,6 +27,10 @@ public class LaunchItem {
         mLaunchUriString = jsonObject.getString("launch_uri_string");
     }
 
+    public String getId() {
+        return mId;
+    }
+
     public String getTitle() {
         return mTitle;
     }
@@ -59,20 +63,15 @@ public class LaunchItem {
         return mId != null ? mId.hashCode() : 0;
     }
 
-    public String toJson() {
-        try {
-            JSONObject json = new JSONObject();
-            json.put("id", mId);
-            json.put("title", mTitle);
-            json.put("sub_title", mSubTitle);
-            json.put("icon_uri", mIconUri);
-            json.put("launch_uri_string", mLaunchUriString);
-            return json.toString();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+    public String toJsonString() throws JSONException {
+        JSONObject json = new JSONObject();
+        json.put("id", mId);
+        json.put("title", mTitle);
+        json.put("sub_title", mSubTitle);
+        json.put("icon_uri", mIconUri);
+        json.put("launch_uri_string", mLaunchUriString);
 
-        return "";
+        return json.toString();
     }
 
     public static class Builder {

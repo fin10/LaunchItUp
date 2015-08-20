@@ -1,8 +1,8 @@
 <resources>
 
-    <style name="AppTheme" parent="Theme.AppCompat.Light"/>
+    <style name="AppTheme" parent="android:Theme.DeviceDefault.Light"/>
 
-    <style name="AppDialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert"/>
+    <style name="AppDialogTheme" parent="android:Theme.DeviceDefault.Light.Dialog.NoActionBar"/>
 
     <style name="TransparentAppTheme" parent="android:Theme.DeviceDefault.Light.NoActionBar.TranslucentDecor">
         <item name="android:windowBackground">@android:color/transparent</item>

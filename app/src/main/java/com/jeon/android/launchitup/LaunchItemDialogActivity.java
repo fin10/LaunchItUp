@@ -5,7 +5,6 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
@@ -55,8 +54,6 @@ public class LaunchItemDialogActivity extends Activity implements View.OnClickLi
         viewPager.setAdapter(new LaunchItemAdapter(getFragmentManager(), getResources()));
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
-        tabLayout.setSelectedTabIndicatorColor(Color.WHITE);
-        tabLayout.setTabTextColors(0x4cffffff, Color.WHITE);
         tabLayout.setupWithViewPager(viewPager);
 
         View okButton = findViewById(R.id.ok_button);

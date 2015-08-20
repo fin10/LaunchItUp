@@ -2,9 +2,7 @@ package com.jeon.android.launchitup.app;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -15,28 +13,28 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.jeon.android.launchitup.LauncherActivity;
 import com.jeon.android.launchitup.Log;
 import com.jeon.android.launchitup.R;
 import com.jeon.android.launchitup.data.LaunchItem;
+import com.jeon.android.launchitup.data.LaunchItemModel;
 
-import org.json.JSONException;
-
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class AppGridFragment extends Fragment implements AppListFetcher.Callback, AdapterView.OnItemClickListener {
+public class AppGridFragment extends Fragment implements AppListFetcher.Callback, AdapterView.OnItemClickListener, LaunchItemModel.EventListener {
 
     private GridView mGridView;
     private View mProgressBar;
     private View mEmptyView;
     private AppListAdapter mAppListAdapter;
+
+    private Toast mUpToFiveToast;
 
     @Nullable
     @Override
@@ -49,27 +47,19 @@ public class AppGridFragment extends Fragment implements AppListFetcher.Callback
         mEmptyView = root.findViewById(R.id.empty_view);
         mProgressBar = root.findViewById(R.id.progress_bar);
 
+        mUpToFiveToast = Toast.makeText(getActivity(), R.string.it_supports_up_to_five_applications, Toast.LENGTH_SHORT);
+
         return root;
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (mAppListAdapter != null) {
-            Set<Integer> selectedItems = mAppListAdapter.getCheckedItems();
-            Set<String> datas = new HashSet<>();
-            for (int index : selectedItems) {
-                LaunchItem data = (LaunchItem) mAppListAdapter.getItem(index);
-                datas.add(data.toJson());
-            }
-
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-            prefs.edit().putStringSet(LauncherActivity.PREF_KEY_LAUNCH_DATA_LIST, datas).apply();
-        }
+        LaunchItemModel.getInstance().removeEventListener(this);
     }
 
     @Override
-    public void onResult(@NonNull List<LaunchItem> launchItemList) {
+    public void onResult(@NonNull List<LaunchItem> items) {
         Activity activity = getActivity();
         if (activity == null) {
             Log.e("activity is null.");
@@ -80,30 +70,23 @@ public class AppGridFragment extends Fragment implements AppListFetcher.Callback
         mGridView.setEmptyView(mEmptyView);
 
         LayoutInflater inflater = activity.getLayoutInflater();
-        mAppListAdapter = new AppListAdapter(inflater, launchItemList);
+        mAppListAdapter = new AppListAdapter(inflater, items);
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
-        Set<String> dataList = prefs.getStringSet(LauncherActivity.PREF_KEY_LAUNCH_DATA_LIST, Collections.<String>emptySet());
-        for (String data : dataList) {
-            try {
-                LaunchItem launchItem = new LaunchItem(data);
-                for (int i = 0; i < launchItemList.size(); ++i) {
-                    if (launchItem.equals(launchItemList.get(i))) {
-                        mAppListAdapter.checkItem(i);
+        List<LaunchItem> checkedItems = LaunchItemModel.getItemList(activity);
+        for (LaunchItem item : items) {
+            if (checkedItems.contains(item)) {
+                mAppListAdapter.checkItem(item);
 
 //                        View view = createAppIcon(this, inflater, launchItem, mCheckedAppListLayout);
 //                        view.setTag(i);
 //                        view.setOnClickListener(this);
 //                        mCheckedAppListLayout.addView(view);
-                    }
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
             }
         }
 
         mGridView.setAdapter(mAppListAdapter);
         mGridView.setOnItemClickListener(this);
+        LaunchItemModel.getInstance().addEventListener(this);
     }
 
     @Override
@@ -114,8 +97,11 @@ public class AppGridFragment extends Fragment implements AppListFetcher.Callback
             return;
         }
 
-        if (mAppListAdapter.isChecked(position)) {
-            mAppListAdapter.uncheckItem(position);
+        if (mAppListAdapter.isChecked(data)) {
+            boolean result = LaunchItemModel.getInstance().removeItem(getActivity(), data.getId());
+            if (result) {
+                mAppListAdapter.uncheckItem(data);
+            }
 
 //            int count = mCheckedAppListLayout.getChildCount();
 //            for (int i = 0; i < count; ++i) {
@@ -131,7 +117,12 @@ public class AppGridFragment extends Fragment implements AppListFetcher.Callback
 //                }
 //            }
         } else {
-            boolean result = mAppListAdapter.checkItem(position);
+            boolean result = LaunchItemModel.getInstance().putItem(getActivity(), data);
+            if (result) {
+                mAppListAdapter.checkItem(data);
+            } else {
+                mUpToFiveToast.show();
+            }
 //            if (result) {
 //                if (mCheckedAppListLayout.getChildCount() == 0) {
 //                    mCheckedAppListLayout.setVisibility(View.VISIBLE);
@@ -153,13 +144,36 @@ public class AppGridFragment extends Fragment implements AppListFetcher.Callback
         mAppListAdapter.notifyDataSetChanged();
     }
 
+    @Override
+    public void onAdded(@NonNull LaunchItem newItem) {
+        if (mAppListAdapter != null && !mAppListAdapter.isChecked(newItem)) {
+            int count = mAppListAdapter.getCount();
+            for (int i = 0; i < count; ++i) {
+                LaunchItem item = (LaunchItem) mAppListAdapter.getItem(i);
+                if (item.equals(newItem)) {
+                    mAppListAdapter.checkItem(item);
+                    break;
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onRemoved(@NonNull String id) {
+        if (mAppListAdapter != null) {
+            LaunchItem item = mAppListAdapter.getCheckedItemById(id);
+            if (item != null) {
+                mAppListAdapter.uncheckItem(item);
+            }
+        }
+    }
+
     private static class AppListAdapter extends BaseAdapter {
 
         private final RequestManager mRequestManager;
         private final LayoutInflater mInflater;
         private final List<LaunchItem> mAppList;
-
-        private final Set<Integer> mCheckedItems;
+        private final Set<LaunchItem> mCheckedItems;
 
         public AppListAdapter(@NonNull LayoutInflater inflater, @NonNull List<LaunchItem> list) {
             mRequestManager = Glide.with(inflater.getContext());
@@ -168,23 +182,31 @@ public class AppGridFragment extends Fragment implements AppListFetcher.Callback
             mCheckedItems = new HashSet<>();
         }
 
-        public boolean checkItem(int position) {
-            if (mCheckedItems.size() >= 5) {
-                Log.d("max:%d", mCheckedItems.size());
-                return false;
-            }
-
-            if (mCheckedItems.contains(position)) {
-                Log.e("[%s] already selected.", position);
+        public void checkItem(@NonNull LaunchItem item) {
+            if (mCheckedItems.contains(item)) {
+                Log.e("[%s] already selected.", item.getId());
             } else {
-                mCheckedItems.add(position);
+                mCheckedItems.add(item);
             }
-
-            return true;
         }
 
-        public void uncheckItem(int position) {
-            mCheckedItems.remove(position);
+        public void uncheckItem(@NonNull LaunchItem item) {
+            mCheckedItems.remove(item);
+        }
+
+        public boolean isChecked(@NonNull LaunchItem item) {
+            return mCheckedItems.contains(item);
+        }
+
+        @Nullable
+        public LaunchItem getCheckedItemById(@NonNull String id) {
+            for (LaunchItem item : mCheckedItems) {
+                if (item.getId().equals(id)) {
+                    return item;
+                }
+            }
+
+            return null;
         }
 
         @Override
@@ -223,17 +245,9 @@ public class AppGridFragment extends Fragment implements AppListFetcher.Callback
                     .into(iconView);
 
             View checkView = (View) convertView.getTag(R.id.check_image_view);
-            checkView.setVisibility(mCheckedItems.contains(position) ? View.VISIBLE : View.INVISIBLE);
+            checkView.setVisibility(mCheckedItems.contains(launchItem) ? View.VISIBLE : View.INVISIBLE);
 
             return convertView;
-        }
-
-        public boolean isChecked(int position) {
-            return mCheckedItems.contains(position);
-        }
-
-        public Set<Integer> getCheckedItems() {
-            return mCheckedItems;
         }
     }
 }
