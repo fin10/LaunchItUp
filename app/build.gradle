@@ -8,7 +8,7 @@ android {
         applicationId "com.jeon.android.launchitup"
         minSdkVersion 19
         targetSdkVersion 23
-        versionCode 4
+        versionCode 5
         versionName "1.1.0"
     }
     buildTypes {
