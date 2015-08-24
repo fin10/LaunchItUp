@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -20,14 +19,14 @@ import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.jeon.android.launchitup.Log;
 import com.jeon.android.launchitup.R;
+import com.jeon.android.launchitup.data.CheckableListAdapter;
 import com.jeon.android.launchitup.data.LaunchItem;
 import com.jeon.android.launchitup.data.LaunchItemModel;
+import com.jeon.android.launchitup.data.LauncherItemFetcherCallback;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-public class AppGridFragment extends Fragment implements AppListFetcher.Callback, AdapterView.OnItemClickListener, LaunchItemModel.EventListener {
+public class AppGridFragment extends Fragment implements LauncherItemFetcherCallback, AdapterView.OnItemClickListener, LaunchItemModel.EventListener {
 
     private GridView mGridView;
     private View mProgressBar;
@@ -128,49 +127,16 @@ public class AppGridFragment extends Fragment implements AppListFetcher.Callback
         }
     }
 
-    private static class AppListAdapter extends BaseAdapter {
+    private static class AppListAdapter extends CheckableListAdapter {
 
         private final RequestManager mRequestManager;
         private final LayoutInflater mInflater;
         private final List<LaunchItem> mAppList;
-        private final Set<LaunchItem> mCheckedItems;
 
         public AppListAdapter(@NonNull LayoutInflater inflater, @NonNull List<LaunchItem> list) {
             mRequestManager = Glide.with(inflater.getContext());
             mInflater = inflater;
             mAppList = list;
-            mCheckedItems = new HashSet<>();
-        }
-
-        public void checkItem(@NonNull LaunchItem item) {
-            if (mCheckedItems.contains(item)) {
-                Log.e("[%s] already selected.", item.getId());
-            } else {
-                mCheckedItems.add(item);
-                notifyDataSetChanged();
-            }
-        }
-
-        public void uncheckItem(@NonNull LaunchItem item) {
-            boolean result = mCheckedItems.remove(item);
-            if (result) {
-                notifyDataSetChanged();
-            }
-        }
-
-        public boolean isChecked(@NonNull LaunchItem item) {
-            return mCheckedItems.contains(item);
-        }
-
-        @Nullable
-        public LaunchItem getCheckedItemById(@NonNull String id) {
-            for (LaunchItem item : mCheckedItems) {
-                if (item.getId().equals(id)) {
-                    return item;
-                }
-            }
-
-            return null;
         }
 
         @Override

@@ -2,6 +2,9 @@
     package="com.jeon.android.launchitup"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
+    <uses-permission android:name="android.permission.CALL_PHONE"/>
+
     <application
         android:name=".LaunchItUpApplication"
         android:allowBackup="true"

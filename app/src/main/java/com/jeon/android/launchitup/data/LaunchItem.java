@@ -2,6 +2,7 @@ package com.jeon.android.launchitup.data;
 
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import org.json.JSONException;
@@ -14,6 +15,7 @@ public class LaunchItem {
     private String mSubTitle = "";
     private Uri mIconUri;
     private String mLaunchUriString;
+    private long mRegistrationTime = 0;
 
     private LaunchItem() {
     }
@@ -25,6 +27,15 @@ public class LaunchItem {
         if (jsonObject.has("sub_title")) mSubTitle = jsonObject.getString("sub_title");
         mIconUri = Uri.parse(jsonObject.getString("icon_uri"));
         mLaunchUriString = jsonObject.getString("launch_uri_string");
+        if (jsonObject.has("registration_time")) mRegistrationTime = jsonObject.getLong("registration_time");
+    }
+
+    public long getRegistrationTime() {
+        return mRegistrationTime;
+    }
+
+    public void setRegistrationTime(long registrationTime) {
+        mRegistrationTime = registrationTime;
     }
 
     public String getId() {
@@ -70,6 +81,7 @@ public class LaunchItem {
         json.put("sub_title", mSubTitle);
         json.put("icon_uri", mIconUri);
         json.put("launch_uri_string", mLaunchUriString);
+        json.put("registration_time", mRegistrationTime);
 
         return json.toString();
     }
@@ -92,7 +104,7 @@ public class LaunchItem {
             return this;
         }
 
-        public Builder setSubTitle(@NonNull String subTitle) {
+        public Builder setSubTitle(@Nullable String subTitle) {
             data.mSubTitle = subTitle;
             return this;
         }

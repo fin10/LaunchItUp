@@ -12,6 +12,7 @@ import android.text.TextUtils;
 
 import com.jeon.android.launchitup.Log;
 import com.jeon.android.launchitup.data.LaunchItem;
+import com.jeon.android.launchitup.data.LauncherItemFetcherCallback;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,7 +21,7 @@ import java.util.List;
 
 public class AppListFetcher {
 
-    public static void fetch(@NonNull PackageManager packageManager, @NonNull final Callback callback) {
+    public static void fetch(@NonNull PackageManager packageManager, @NonNull final LauncherItemFetcherCallback callback) {
 
         new AsyncTask<PackageManager, Void, List<LaunchItem>>() {
 
@@ -90,10 +91,6 @@ public class AppListFetcher {
                 callback.onResult(launchItemList);
             }
 
-        }.execute(packageManager);
-    }
-
-    public interface Callback {
-        void onResult(@NonNull List<LaunchItem> launchItemList);
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, packageManager);
     }
 }

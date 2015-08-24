@@ -12,6 +12,7 @@ import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -55,6 +56,14 @@ public class LaunchItemModel {
             }
         }
 
+        Collections.sort(items, new Comparator<LaunchItem>() {
+
+            @Override
+            public int compare(LaunchItem lhs, LaunchItem rhs) {
+                return Long.compare(lhs.getRegistrationTime(), rhs.getRegistrationTime());
+            }
+        });
+
         return items;
     }
 
@@ -81,6 +90,7 @@ public class LaunchItemModel {
             }
 
             Set<String> items = new HashSet<>(dataList);
+            data.setRegistrationTime(System.currentTimeMillis());
             items.add(data.toJsonString());
             prefs.edit().putStringSet(PREF_KEY_LAUNCH_DATA_LIST, items).apply();
 
