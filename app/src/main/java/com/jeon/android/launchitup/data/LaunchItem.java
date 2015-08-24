@@ -16,6 +16,7 @@ public class LaunchItem {
     private Uri mIconUri;
     private String mLaunchUriString;
     private long mRegistrationTime = 0;
+    private boolean mShowTitle = false;
 
     private LaunchItem() {
     }
@@ -28,14 +29,7 @@ public class LaunchItem {
         mIconUri = Uri.parse(jsonObject.getString("icon_uri"));
         mLaunchUriString = jsonObject.getString("launch_uri_string");
         if (jsonObject.has("registration_time")) mRegistrationTime = jsonObject.getLong("registration_time");
-    }
-
-    public long getRegistrationTime() {
-        return mRegistrationTime;
-    }
-
-    public void setRegistrationTime(long registrationTime) {
-        mRegistrationTime = registrationTime;
+        if (jsonObject.has("show_title")) mShowTitle = jsonObject.getBoolean("show_title");
     }
 
     public String getId() {
@@ -56,6 +50,18 @@ public class LaunchItem {
 
     public String getLaunchUriString() {
         return mLaunchUriString;
+    }
+
+    public long getRegistrationTime() {
+        return mRegistrationTime;
+    }
+
+    public void setRegistrationTime(long registrationTime) {
+        mRegistrationTime = registrationTime;
+    }
+
+    public boolean isShownTitle() {
+        return mShowTitle;
     }
 
     @Override
@@ -82,6 +88,7 @@ public class LaunchItem {
         json.put("icon_uri", mIconUri);
         json.put("launch_uri_string", mLaunchUriString);
         json.put("registration_time", mRegistrationTime);
+        json.put("show_title", mShowTitle);
 
         return json.toString();
     }
@@ -116,6 +123,11 @@ public class LaunchItem {
 
         public Builder setLaunchUri(@NonNull String uriString) {
             data.mLaunchUriString = uriString;
+            return this;
+        }
+
+        public Builder setShowTitle(boolean show) {
+            data.mShowTitle = show;
             return this;
         }
 

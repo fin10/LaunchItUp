@@ -7,13 +7,14 @@ import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
-import com.github.clans.fab.FloatingActionButton;
 import com.jeon.android.launchitup.data.LaunchItem;
 import com.jeon.android.launchitup.data.LaunchItemModel;
 
@@ -78,13 +79,20 @@ public class LauncherActivity extends Activity implements View.OnClickListener {
             return;
         }
 
-        int size = getResources().getDimensionPixelSize(R.dimen.icon_size);
         LayoutInflater inflater = getLayoutInflater();
         for (LaunchItem item : items) {
             View view = inflater.inflate(R.layout.launch_item_layout, parent, false);
-            final FloatingActionButton button = (FloatingActionButton) view.findViewById(R.id.floating_action_button);
             parent.addView(view);
 
+            TextView titleView = (TextView) view.findViewById(R.id.title_view);
+            if (item.isShownTitle()) {
+                titleView.setVisibility(View.VISIBLE);
+                titleView.setText(item.getTitle());
+            } else {
+                titleView.setVisibility(View.INVISIBLE);
+            }
+
+            final ImageView button = (ImageView) view.findViewById(R.id.floating_action_button);
             button.setTag(item);
             button.setOnClickListener(this);
 
@@ -92,7 +100,7 @@ public class LauncherActivity extends Activity implements View.OnClickListener {
                     .load(item.getIconUri())
                     .error(android.R.drawable.ic_menu_help)
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
-                    .into(new SimpleTarget<GlideDrawable>(size, size) {
+                    .into(new SimpleTarget<GlideDrawable>() {
 
                         @Override
                         public void onResourceReady(GlideDrawable resource, GlideAnimation<? super GlideDrawable> glideAnimation) {

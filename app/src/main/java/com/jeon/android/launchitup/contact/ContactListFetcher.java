@@ -84,6 +84,7 @@ public class ContactListFetcher {
                                     .setSubTitle(number)
                                     .setLaunchUri(intent.toUri(0))
                                     .setIconUri(thumbnailUri)
+                                    .setShowTitle(true)
                                     .build();
 
                             if (!itemMap.containsKey(number)) {

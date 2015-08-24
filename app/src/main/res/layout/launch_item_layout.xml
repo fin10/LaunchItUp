@@ -1,21 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:fab="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:orientation="vertical"
     tools:context=".LauncherActivity"
     >
 
-    <com.github.clans.fab.FloatingActionButton
+    <TextView
+        android:id="@+id/title_view"
+        android:layout_width="56dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="4dp"
+        android:background="@drawable/rounded_background"
+        android:ellipsize="end"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center"
+        android:maxLines="2"
+        android:padding="4dp"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
+        />
+
+    <android.support.design.widget.FloatingActionButton
         android:id="@+id/floating_action_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="2dp"
-        android:layout_marginStart="2dp"
-        fab:fab_colorNormal="@color/primary_color"
-        fab:fab_colorPressed="@color/primary_color_pressed"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="12dp"
+        fab:backgroundTint="@color/primary_color"
+        fab:borderWidth="0dp"
+        fab:rippleColor="@color/primary_color_pressed"
         />
 
-</RelativeLayout>
+</LinearLayout>

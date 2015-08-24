@@ -15,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.jeon.android.launchitup.Log;
 import com.jeon.android.launchitup.R;
 import com.jeon.android.launchitup.data.CheckableListAdapter;
@@ -170,6 +171,7 @@ public class ContactListFragment extends Fragment implements LauncherItemFetcher
 
             Glide.with(mInflater.getContext())
                     .load(item.getIconUri())
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .into((ImageView) convertView.getTag(R.id.photo_view));
 
             View checkView = (View) convertView.getTag(R.id.check_image_view);
