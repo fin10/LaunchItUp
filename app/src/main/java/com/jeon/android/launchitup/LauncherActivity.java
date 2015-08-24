@@ -2,6 +2,7 @@ package com.jeon.android.launchitup;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
@@ -79,6 +80,7 @@ public class LauncherActivity extends Activity implements View.OnClickListener {
             return;
         }
 
+        int size = getResources().getDimensionPixelSize(R.dimen.icon_size);
         LayoutInflater inflater = getLayoutInflater();
         for (LaunchItem item : items) {
             View view = inflater.inflate(R.layout.launch_item_layout, parent, false);
@@ -99,12 +101,18 @@ public class LauncherActivity extends Activity implements View.OnClickListener {
             Glide.with(this)
                     .load(item.getIconUri())
                     .error(android.R.drawable.ic_menu_help)
+                    .fitCenter()
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
-                    .into(new SimpleTarget<GlideDrawable>() {
+                    .into(new SimpleTarget<GlideDrawable>(size, size) {
 
                         @Override
                         public void onResourceReady(GlideDrawable resource, GlideAnimation<? super GlideDrawable> glideAnimation) {
                             button.setImageDrawable(resource);
+                        }
+
+                        @Override
+                        public void onLoadFailed(Exception e, Drawable errorDrawable) {
+                            button.setImageDrawable(errorDrawable);
                         }
                     });
         }

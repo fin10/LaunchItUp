@@ -11,7 +11,7 @@
 
     <TextView
         android:id="@+id/title_view"
-        android:layout_width="56dp"
+        android:layout_width="@dimen/fab_size_normal"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_margin="4dp"
@@ -25,15 +25,14 @@
         android:textSize="12sp"
         />
 
-    <android.support.design.widget.FloatingActionButton
+    <com.melnykov.fab.FloatingActionButton
         android:id="@+id/floating_action_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/fab_size_normal"
+        android:layout_height="@dimen/fab_size_normal"
         android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="12dp"
-        fab:backgroundTint="@color/primary_color"
-        fab:borderWidth="0dp"
-        fab:rippleColor="@color/primary_color_pressed"
+        android:layout_marginBottom="16dp"
+        fab:fab_colorNormal="@color/primary_color"
+        fab:fab_colorPressed="@color/primary_color_pressed"
         />
 
 </LinearLayout>
