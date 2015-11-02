@@ -1,6 +1,7 @@
 package com.jeon.android.launchitup;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -22,7 +24,7 @@ import com.jeon.android.launchitup.data.LaunchItemModel;
 import java.net.URISyntaxException;
 import java.util.List;
 
-public class LauncherActivity extends Activity implements View.OnClickListener {
+public final class LauncherActivity extends Activity implements View.OnClickListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,8 +40,9 @@ public class LauncherActivity extends Activity implements View.OnClickListener {
         if (items.size() == 1) {
             try {
                 startActivity(Intent.parseUri(items.get(0).getLaunchUriString(), 0));
-            } catch (URISyntaxException e) {
+            } catch (URISyntaxException | ActivityNotFoundException e) {
                 e.printStackTrace();
+                Toast.makeText(this, getString(R.string.not_found_s, items.get(0).getTitle()), Toast.LENGTH_LONG).show();
             }
 
             finish();
@@ -64,8 +67,9 @@ public class LauncherActivity extends Activity implements View.OnClickListener {
                 if (launchItem != null) {
                     try {
                         startActivity(Intent.parseUri(launchItem.getLaunchUriString(), 0));
-                    } catch (URISyntaxException e) {
+                    } catch (URISyntaxException | ActivityNotFoundException e) {
                         e.printStackTrace();
+                        Toast.makeText(this, getString(R.string.not_found_s, launchItem.getTitle()), Toast.LENGTH_LONG).show();
                     }
 
                     finish();

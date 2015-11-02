@@ -8,7 +8,7 @@ import android.text.TextUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class LaunchItem {
+public final class LaunchItem {
 
     private String mId;
     private String mTitle;
@@ -21,7 +21,7 @@ public class LaunchItem {
     private LaunchItem() {
     }
 
-    public LaunchItem(String json) throws JSONException {
+    LaunchItem(@NonNull String json) throws JSONException {
         JSONObject jsonObject = new JSONObject(json);
         mId = jsonObject.getString("id");
         mTitle = jsonObject.getString("title");
@@ -80,7 +80,8 @@ public class LaunchItem {
         return mId != null ? mId.hashCode() : 0;
     }
 
-    public String toJsonString() throws JSONException {
+    @NonNull
+    String toJsonString() throws JSONException {
         JSONObject json = new JSONObject();
         json.put("id", mId);
         json.put("title", mTitle);
@@ -93,7 +94,7 @@ public class LaunchItem {
         return json.toString();
     }
 
-    public static class Builder {
+    public static final class Builder {
 
         private final LaunchItem data;
 
@@ -101,36 +102,43 @@ public class LaunchItem {
             data = new LaunchItem();
         }
 
+        @NonNull
         public Builder setId(@NonNull String id) {
             data.mId = id;
             return this;
         }
 
+        @NonNull
         public Builder setTitle(@NonNull String title) {
             data.mTitle = title;
             return this;
         }
 
+        @NonNull
         public Builder setSubTitle(@Nullable String subTitle) {
             data.mSubTitle = subTitle;
             return this;
         }
 
+        @NonNull
         public Builder setIconUri(@NonNull Uri uri) {
             data.mIconUri = uri;
             return this;
         }
 
+        @NonNull
         public Builder setLaunchUri(@NonNull String uriString) {
             data.mLaunchUriString = uriString;
             return this;
         }
 
+        @NonNull
         public Builder setShowTitle(boolean show) {
             data.mShowTitle = show;
             return this;
         }
 
+        @NonNull
         public LaunchItem build() {
             if (TextUtils.isEmpty(data.mId))
                 throw new IllegalArgumentException("id is empty.");
