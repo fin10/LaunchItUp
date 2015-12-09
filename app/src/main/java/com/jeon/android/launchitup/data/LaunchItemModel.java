@@ -18,7 +18,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-public class LaunchItemModel {
+public final class LaunchItemModel {
 
     private static final String PREF_KEY_LAUNCH_DATA_LIST = "pref_key_launch_data_list";
 

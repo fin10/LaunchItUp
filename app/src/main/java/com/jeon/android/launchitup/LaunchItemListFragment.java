@@ -17,7 +17,7 @@ import com.jeon.android.launchitup.data.LaunchItemModel;
 
 import java.util.List;
 
-public class LaunchItemListFragment extends Fragment implements LaunchItemModel.EventListener, View.OnClickListener {
+public final class LaunchItemListFragment extends Fragment implements LaunchItemModel.EventListener, View.OnClickListener {
 
     private ViewGroup mLayout;
 

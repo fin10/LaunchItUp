@@ -1,5 +1,6 @@
 package com.jeon.android.launchitup.app;
 
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -40,8 +41,8 @@ public class AppListFetcher {
 
                 List<LaunchItem> launchItemList = new ArrayList<>(infoList.size());
                 for (ResolveInfo info : infoList) {
-                    String pkgName = info.activityInfo.applicationInfo.packageName;
                     try {
+                        String pkgName = info.activityInfo.packageName;
                         CharSequence name = info.loadLabel(pkgManager);
                         if (TextUtils.isEmpty(name)) continue;
 
@@ -54,7 +55,7 @@ public class AppListFetcher {
                                 .appendPath(res.getResourceEntryName(iconResId))
                                 .build();
 
-                        String uriString = pkgManager.getLaunchIntentForPackage(pkgName).toUri(0);
+                        String uriString = Intent.makeRestartActivityTask(new ComponentName(pkgName, info.activityInfo.name)).toUri(0);
 
                         LaunchItem data = new LaunchItem.Builder()
                                 .setId(uriString)
@@ -66,11 +67,7 @@ public class AppListFetcher {
                         if (!launchItemList.contains(data)) {
                             launchItemList.add(data);
                         }
-                    } catch (IllegalArgumentException e) {
-                        e.printStackTrace();
-                    } catch (PackageManager.NameNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (Resources.NotFoundException e) {
+                    } catch (IllegalArgumentException | PackageManager.NameNotFoundException | Resources.NotFoundException e) {
                         e.printStackTrace();
                     }
                 }

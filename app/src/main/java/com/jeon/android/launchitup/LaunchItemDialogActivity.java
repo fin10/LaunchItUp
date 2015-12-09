@@ -1,6 +1,5 @@
 package com.jeon.android.launchitup;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.res.Resources;
@@ -9,6 +8,8 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import com.jeon.android.launchitup.app.AppGridFragment;
@@ -17,13 +18,16 @@ import com.jeon.android.launchitup.contact.ContactListFragment;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LaunchItemDialogActivity extends Activity implements View.OnClickListener {
+public final class LaunchItemDialogActivity extends AppCompatActivity implements View.OnClickListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d("enter");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_launch_item_dialog);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.view_pager);
         viewPager.setAdapter(new LaunchItemAdapter(getFragmentManager(), getResources()));
@@ -44,7 +48,7 @@ public class LaunchItemDialogActivity extends Activity implements View.OnClickLi
         }
     }
 
-    public static class LaunchItemAdapter extends FragmentPagerAdapter {
+    private static class LaunchItemAdapter extends FragmentPagerAdapter {
 
         private static final int PAGE_COUNT = 2;
         private final List<String> mTitleList;

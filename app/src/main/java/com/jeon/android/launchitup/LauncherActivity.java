@@ -1,11 +1,11 @@
 package com.jeon.android.launchitup;
 
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +24,7 @@ import com.jeon.android.launchitup.data.LaunchItemModel;
 import java.net.URISyntaxException;
 import java.util.List;
 
-public final class LauncherActivity extends Activity implements View.OnClickListener {
+public final class LauncherActivity extends AppCompatActivity implements View.OnClickListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ContactListFetcher {
+public final class ContactListFetcher {
 
     private static final Uri EMPTY_PHOTO_URI = new Uri.Builder()
             .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
