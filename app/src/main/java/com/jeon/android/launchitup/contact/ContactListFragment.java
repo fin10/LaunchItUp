@@ -1,10 +1,15 @@
 package com.jeon.android.launchitup.contact;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,11 +30,14 @@ import com.jeon.android.launchitup.data.LauncherItemFetcherCallback;
 
 import java.util.List;
 
-public class ContactListFragment extends Fragment implements LauncherItemFetcherCallback, AdapterView.OnItemClickListener, LaunchItemModel.EventListener {
+public class ContactListFragment extends Fragment implements LauncherItemFetcherCallback, AdapterView.OnItemClickListener, LaunchItemModel.EventListener, View.OnClickListener {
+
+    private static final int REQUEST_CODE_READ_CONTACTS = 1;
 
     private ListView mListView;
     private View mProgressBar;
     private View mEmptyView;
+    private View mPermissionLayout;
     private ContactListAdapter mAdapter;
 
     private Toast mUpToFiveToast;
@@ -38,16 +46,51 @@ public class ContactListFragment extends Fragment implements LauncherItemFetcher
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.d("onCreateView");
-        ContactListFetcher.fetch(getActivity(), this);
 
         View root = inflater.inflate(R.layout.fragment_contact_list, container, false);
         mListView = (ListView) root.findViewById(R.id.list_view);
         mEmptyView = root.findViewById(R.id.empty_view);
         mProgressBar = root.findViewById(R.id.progress_bar);
+        mPermissionLayout = root.findViewById(R.id.permission_layout);
 
         mUpToFiveToast = Toast.makeText(getActivity(), R.string.it_supports_up_to_five_applications, Toast.LENGTH_SHORT);
 
+        if (PackageManager.PERMISSION_DENIED == ContextCompat.checkSelfPermission(inflater.getContext(), Manifest.permission.READ_CONTACTS)) {
+            View requestBtn = mPermissionLayout.findViewById(R.id.permission_request_button);
+            requestBtn.setOnClickListener(this);
+
+            mPermissionLayout.setVisibility(View.VISIBLE);
+            mProgressBar.setVisibility(View.GONE);
+            mListView.setVisibility(View.GONE);
+            mEmptyView.setVisibility(View.GONE);
+        } else {
+            ContactListFetcher.fetch(getActivity(), this);
+        }
+
         return root;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        LaunchItemModel.getInstance().removeEventListener(this);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (permissions.length <= 0 || grantResults.length <= 0) return;
+
+        switch (requestCode) {
+            case REQUEST_CODE_READ_CONTACTS:
+                if (TextUtils.equals(permissions[0], Manifest.permission.READ_CONTACTS) && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    mPermissionLayout.setVisibility(View.GONE);
+                    mProgressBar.setVisibility(View.VISIBLE);
+                    mListView.setVisibility(View.VISIBLE);
+                    mEmptyView.setVisibility(View.GONE);
+                    ContactListFetcher.fetch(getActivity(), this);
+                }
+                break;
+        }
     }
 
     @Override
@@ -74,12 +117,6 @@ public class ContactListFragment extends Fragment implements LauncherItemFetcher
         mListView.setAdapter(mAdapter);
         mListView.setOnItemClickListener(this);
         LaunchItemModel.getInstance().addEventListener(this);
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        LaunchItemModel.getInstance().removeEventListener(this);
     }
 
     @Override
@@ -123,6 +160,17 @@ public class ContactListFragment extends Fragment implements LauncherItemFetcher
             if (item != null) {
                 mAdapter.uncheckItem(item);
             }
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.permission_request_button:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, REQUEST_CODE_READ_CONTACTS);
+                }
+                break;
         }
     }
 

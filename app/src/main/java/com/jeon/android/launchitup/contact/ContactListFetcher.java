@@ -74,7 +74,7 @@ public final class ContactListFetcher {
                             thumbnailUri = Uri.parse(photoThumbUri);
                         }
 
-                        Intent intent = new Intent(Intent.ACTION_CALL);
+                        Intent intent = new Intent(Intent.ACTION_DIAL);
                         intent.setData(Uri.parse("tel:" + number));
 
                         try {
