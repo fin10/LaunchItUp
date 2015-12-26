@@ -30,7 +30,6 @@ public class AppGridFragment extends Fragment implements LauncherItemFetcherCall
 
     private GridView mGridView;
     private View mProgressBar;
-    private View mEmptyView;
     private AppListAdapter mAppListAdapter;
 
     private Toast mUpToFiveToast;
@@ -43,10 +42,7 @@ public class AppGridFragment extends Fragment implements LauncherItemFetcherCall
 
         View root = inflater.inflate(R.layout.fragment_app_grid, container, false);
         mGridView = (GridView) root.findViewById(R.id.grid_view);
-        mEmptyView = root.findViewById(R.id.empty_view);
         mProgressBar = root.findViewById(R.id.progress_bar);
-
-        mUpToFiveToast = Toast.makeText(getActivity(), R.string.it_supports_up_to_five_applications, Toast.LENGTH_SHORT);
 
         return root;
     }
@@ -66,7 +62,6 @@ public class AppGridFragment extends Fragment implements LauncherItemFetcherCall
         }
 
         mProgressBar.setVisibility(View.GONE);
-        mGridView.setEmptyView(mEmptyView);
 
         LayoutInflater inflater = activity.getLayoutInflater();
         mAppListAdapter = new AppListAdapter(inflater, items);
@@ -96,6 +91,8 @@ public class AppGridFragment extends Fragment implements LauncherItemFetcherCall
         } else {
             boolean result = LaunchItemModel.getInstance().putItem(getActivity(), data);
             if (!result) {
+                if (mUpToFiveToast == null)
+                    mUpToFiveToast = Toast.makeText(getActivity(), R.string.it_supports_up_to_five_applications, Toast.LENGTH_SHORT);
                 mUpToFiveToast.show();
             }
         }

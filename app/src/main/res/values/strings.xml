@@ -3,7 +3,7 @@
     <string name="it_supports_up_to_five_applications">It supports tp to 5 applications.</string>
     <string name="apps">Apps</string>
     <string name="contacts">Contacts</string>
-    <string name="no_items">No items</string>
+    <string name="no_contacts">No contacts</string>
     <string name="not_found_s">Not found %s.</string>
     <string name="there_is_no_permission_to_read_contacts">There is no permission to read contacts.</string>
     <string name="request">Request</string>

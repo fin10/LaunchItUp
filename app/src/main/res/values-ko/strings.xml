@@ -3,7 +3,7 @@
     <string name="apps">앱스</string>
     <string name="contacts">연락처</string>
     <string name="it_supports_up_to_five_applications">5개까지 등록할 수 있습니다.</string>
-    <string name="no_items">아이템이 없습니다.</string>
+    <string name="no_contacts">연락처가 없습니다.</string>
     <string name="not_found_s">%s 앱을 찾을 수 없습니다.</string>
     <string name="request">권한 요청</string>
     <string name="there_is_no_permission_to_read_contacts">연락처 읽기 권한이 없습니다.</string>

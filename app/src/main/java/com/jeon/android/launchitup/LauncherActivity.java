@@ -66,7 +66,14 @@ public final class LauncherActivity extends AppCompatActivity implements View.On
                 LaunchItem launchItem = (LaunchItem) v.getTag();
                 if (launchItem != null) {
                     try {
-                        startActivity(Intent.parseUri(launchItem.getLaunchUriString(), 0));
+                        Intent intent = Intent.parseUri(launchItem.getLaunchUriString(), 0);
+
+                        // for v1.1.2
+                        if (Intent.ACTION_CALL.equals(intent.getAction())) {
+                            intent.setAction(Intent.ACTION_DIAL);
+                        }
+
+                        startActivity(intent);
                     } catch (URISyntaxException | ActivityNotFoundException e) {
                         e.printStackTrace();
                         Toast.makeText(this, getString(R.string.not_found_s, launchItem.getTitle()), Toast.LENGTH_LONG).show();
